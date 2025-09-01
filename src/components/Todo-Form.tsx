@@ -12,10 +12,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { saveTodo } from "@/lib/localStorage";
 import { todoSchema } from "@/schema/Todo";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 export function TodoForm() {
@@ -33,7 +35,25 @@ export function TodoForm() {
   });
 
   function onSubmit(values: z.infer<typeof todoSchema>) {
-    console.log(values);
+    let finalTodos = [];
+
+    for (const todo of values.todos) {
+      if (todo.todo.trim() != "") {
+        finalTodos.push(todo);
+      }
+    }
+
+    console.log(finalTodos);
+
+    if (finalTodos.length === 0) {
+      toast.error("Todo Cannot be saved!", {
+        description: "Add atleast 1 todo item",
+      });
+      return;
+    }
+
+    saveTodo({ title: values.title, todos: finalTodos });
+    form.reset();
   }
 
   return (
@@ -57,7 +77,7 @@ export function TodoForm() {
             key={field.id}
             className="flex items-center space-x-2 p-2 border rounded-md"
           >
-            <FormField
+            {/* <FormField
               control={form.control}
               name={`todos.${index}.done`}
               render={({ field }) => (
@@ -70,7 +90,7 @@ export function TodoForm() {
                   </FormControl>
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
               name={`todos.${index}.todo`}
