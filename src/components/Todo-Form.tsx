@@ -15,12 +15,19 @@ import { Input } from "@/components/ui/input";
 import { saveTodo } from "@/lib/localStorage";
 import { todoSchema } from "@/schema/Todo";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { X } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
 export function TodoForm() {
+  const queryClient = useQueryClient();
+
+  function invalidateTodos() {
+    queryClient.invalidateQueries({ queryKey: ["todos"] });
+  }
+
   const form = useForm<z.infer<typeof todoSchema>>({
     resolver: zodResolver(todoSchema),
     defaultValues: {
@@ -35,7 +42,7 @@ export function TodoForm() {
   });
 
   function onSubmit(values: z.infer<typeof todoSchema>) {
-    let finalTodos = [];
+    const finalTodos = [];
 
     for (const todo of values.todos) {
       if (todo.todo.trim() != "") {
@@ -53,6 +60,7 @@ export function TodoForm() {
     }
 
     saveTodo({ title: values.title, todos: finalTodos });
+    invalidateTodos();
     form.reset();
   }
 
@@ -106,18 +114,14 @@ export function TodoForm() {
                 </FormItem>
               )}
             />
-            <Button
-              variant="destructive"
-              className="bg-red-700"
-              size="icon"
-              onClick={() => remove(index)}
-            >
-              <Trash2 />
+            <Button variant="ghost" size="icon" onClick={() => remove(index)}>
+              <X />
             </Button>
           </div>
         ))}
         <Button
           variant="outline"
+          type="button"
           className="border-2 border-dashed"
           onClick={() => append({ done: false, todo: "" })}
         >

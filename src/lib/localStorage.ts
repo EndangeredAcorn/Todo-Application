@@ -1,4 +1,8 @@
+"use client";
+
 import { todoSchema } from "@/schema/Todo";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import z from "zod";
 
 function generateRandomID() {
@@ -10,16 +14,25 @@ export function saveTodo(values: z.infer<typeof todoSchema>) {
 
   localStorage.setItem(id, JSON.stringify(values));
 }
-
-export function getAllTodos() {
-  const todos: Record<string, typeof todoSchema> = {};
-
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key) {
-      todos[key] = JSON.parse(localStorage.getItem(key) as string);
-    }
+export function removeTodo(id: string) {
+  const item = localStorage.getItem(id);
+  if (!item) {
+    toast.warning("Couldn't delete Todo", {
+      description: "Couldn't find the todo",
+    });
+    return;
   }
 
-  return todos;
+  localStorage.removeItem(id);
+}
+
+export function updateTodo(id: string, todo: z.infer<typeof todoSchema>) {
+  const item = localStorage.getItem(id);
+  if (!item) {
+    toast.warning("Couldn't update Todo", {
+      description: "Couldn't find the todo",
+    });
+    return;
+  }
+  localStorage.setItem(id, JSON.stringify(todo));
 }
