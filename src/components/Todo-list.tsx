@@ -1,13 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { removeTodo, updateTodo } from "@/lib/localStorage";
 import { todoSchema } from "@/schema/Todo";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Trash2, X } from "lucide-react";
-import { toast } from "sonner";
+
 import { z } from "zod";
+import { TodoCard } from "@/components/Todo-item";
 
 export function TodoList() {
   const {
@@ -72,73 +69,13 @@ export function TodoList() {
       <h1 className="text-2xl font-bold">All Todos:</h1>
       <div className="gap-4 grid grid-cols-1 py-6 lg:grid-cols-2">
         {Object.entries(todos).map(([id, todoData]) => (
-          <div key={id} className="border rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-foreground">
-                {todoData.title}
-              </h3>
-              <Button
-                variant="destructive"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => {
-                  removeTodo(id);
-                  invalidateTodos();
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="space-y-2">
-              {todoData.todos.map((todo, index) => (
-                <div
-                  key={`${id}-${index}-${todo.todo}-${todo.done}`}
-                  className="flex items-center space-x-2"
-                >
-                  <Checkbox
-                    className="cursor-pointer"
-                    checked={todo.done}
-                    onCheckedChange={(checked) => {
-                      const todoDataCopy = JSON.parse(JSON.stringify(todoData));
-                      todoDataCopy.todos[index].done = !!checked;
-                      updateTodo(id, todoDataCopy);
-                      invalidateTodos();
-                    }}
-                  />
-                  <span
-                    className={`flex-1 ${
-                      todo.done
-                        ? "line-through text-muted-foreground"
-                        : "text-foreground"
-                    }`}
-                  >
-                    {todo.todo}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      const todoDataCopy = JSON.parse(JSON.stringify(todoData));
-                      todoDataCopy.todos = todoData.todos.filter(
-                        (_, i) => i != index
-                      );
-                      if (todoDataCopy.todos.length == 0) {
-                        toast.warning("Couldn't delete the todo", {
-                          description: "There is one todo left in the topic",
-                        });
-                        return;
-                      }
-                      updateTodo(id, todoDataCopy);
-                      invalidateTodos();
-                    }}
-                  >
-                    <X />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
+          <TodoCard
+            key={id}
+            id={id}
+            todoData={todoData}
+            onInvalidate={invalidateTodos}
+            showExternalLink={true}
+          />
         ))}
       </div>
     </div>

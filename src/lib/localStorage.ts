@@ -20,10 +20,11 @@ export function removeTodo(id: string) {
     toast.warning("Couldn't delete Todo", {
       description: "Couldn't find the todo",
     });
-    return;
+    return false;
   }
 
   localStorage.removeItem(id);
+  return true
 }
 
 export function updateTodo(id: string, todo: z.infer<typeof todoSchema>) {

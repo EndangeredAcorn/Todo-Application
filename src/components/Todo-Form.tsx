@@ -21,7 +21,13 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-export function TodoForm() {
+export function TodoForm({
+  initialValues,
+  onSubmitFunction,
+}: {
+  initialValues?: z.infer<typeof todoSchema>;
+  onSubmitFunction?: (values: z.infer<typeof todoSchema>) => void;
+}) {
   const queryClient = useQueryClient();
 
   function invalidateTodos() {
@@ -30,7 +36,7 @@ export function TodoForm() {
 
   const form = useForm<z.infer<typeof todoSchema>>({
     resolver: zodResolver(todoSchema),
-    defaultValues: {
+    defaultValues: initialValues ?? {
       title: "",
       todos: [{ done: false, todo: "" }],
     },
@@ -59,9 +65,20 @@ export function TodoForm() {
       return;
     }
 
-    saveTodo({ title: values.title, todos: finalTodos });
+    const cleaned = { title: values.title, todos: finalTodos } as z.infer<
+      typeof todoSchema
+    >;
+
+    if (onSubmitFunction) {
+      onSubmitFunction(cleaned);
+    } else {
+      saveTodo(cleaned);
+    }
+
     invalidateTodos();
-    form.reset();
+    form.reset(
+      initialValues ?? { title: "", todos: [{ done: false, todo: "" }] }
+    );
   }
 
   return (
