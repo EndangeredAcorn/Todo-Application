@@ -4,10 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { removeTodo, updateTodo } from "@/lib/localStorage";
 import { todoSchema } from "@/schema/Todo";
-import { ExternalLink, Trash2, X } from "lucide-react";
+import { ExternalLink, Pencil, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import z from "zod";
 import { toast } from "sonner";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useQueryClient } from "@tanstack/react-query";
+import { TodoForm } from "@/components/Todo-Form";
 
 export function TodoCard({
   id,
@@ -20,6 +30,12 @@ export function TodoCard({
   onInvalidate: () => void;
   showExternalLink?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  function invalidateTodos() {
+    queryClient.invalidateQueries({ queryKey: ["todos"] });
+  }
   return (
     <div className="border rounded-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
@@ -31,6 +47,27 @@ export function TodoCard({
                 <ExternalLink />
               </Link>
             </Button>
+
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size={"icon"} className="h-8 w-8">
+                  <Pencil />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Todo</DialogTitle>
+                </DialogHeader>
+                <TodoForm
+                  initialValues={todoData}
+                  onSubmitFunction={(values) => {
+                    updateTodo(id, values);
+                    invalidateTodos();
+                    setOpen(false);
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
 
             <Button
               variant="destructive"
