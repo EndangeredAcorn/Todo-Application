@@ -1,7 +1,6 @@
 "use client";
 
 import { todoSchema } from "@/schema/Todo";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import z from "zod";
 
@@ -24,7 +23,7 @@ export function removeTodo(id: string) {
   }
 
   localStorage.removeItem(id);
-  return true
+  return true;
 }
 
 export function updateTodo(id: string, todo: z.infer<typeof todoSchema>) {
