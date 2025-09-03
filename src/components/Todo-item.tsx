@@ -74,8 +74,9 @@ export function TodoCard({
               size="icon"
               className="h-8 w-8"
               onClick={() => {
-                removeTodo(id);
+                const done = removeTodo(id);
                 onInvalidate();
+                if (done) toast.success("Todo Removed");
               }}
             >
               <Trash2 className="h-4 w-4" />

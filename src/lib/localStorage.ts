@@ -12,6 +12,7 @@ export function saveTodo(values: z.infer<typeof todoSchema>) {
   const id = generateRandomID();
 
   localStorage.setItem(id, JSON.stringify(values));
+  toast.success("Todo Created");
 }
 export function removeTodo(id: string) {
   const item = localStorage.getItem(id);
@@ -35,4 +36,5 @@ export function updateTodo(id: string, todo: z.infer<typeof todoSchema>) {
     return;
   }
   localStorage.setItem(id, JSON.stringify(todo));
+  toast.success("Todo Updated");
 }
